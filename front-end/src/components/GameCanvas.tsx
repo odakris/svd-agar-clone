@@ -18,11 +18,11 @@ export const GAME_HEIGHT = 5000;
 const GameCanvas: React.FC = () => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const playersRef = useRef<{ [key: string]: Bubble }>({});
+  const foodsRef = useRef<{ [key: string]: Bubble }>({});
 
   useEffect(() => {
     const sketch = (p: p5) => {
       p.setup = () => {
-        // Attach canvas to the #game-container div
         if (gameContainerRef.current) {
           p.createCanvas(p.windowWidth, p.windowHeight).parent(gameContainerRef.current);
         }
@@ -32,12 +32,28 @@ const GameCanvas: React.FC = () => {
         p.background(135, 206, 235);
 
         const players = playersRef.current;
+        const foods = foodsRef.current;
+
+        // Get the current player
+        const socketId = socket.id as string;
+        const player = players[socketId];
+        if (!player) return;
+
+        p.push();
+
+        // Draw foods
+        Object.values(foods).forEach((food) => {
+          p.fill(food.color);
+          p.ellipse(food.x, food.y, food.r * 2);
+        });
 
         // Draw players
         Object.values(players).forEach((player) => {
           p.fill(player.color);
           p.ellipse(player.x, player.y, player.r * 2);
         });
+
+        p.pop();
       };
     };
 
@@ -45,6 +61,7 @@ const GameCanvas: React.FC = () => {
 
     socket.on("update", (data) => {
       playersRef.current = data.players;
+      foodsRef.current = data.foods;
     });
 
     return () => {
