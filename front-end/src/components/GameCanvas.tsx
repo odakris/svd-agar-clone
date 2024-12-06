@@ -50,6 +50,19 @@ const GameCanvas: React.FC = () => {
         p.translate(translateX, translateY);
         // p.scale(scaleFactor);
 
+        p.stroke(0);
+        p.noFill();
+        p.rect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+        const gridSize = 100;
+        p.stroke(200); // Light gray for grid lines
+        for (let x = 0; x <= GAME_WIDTH; x += gridSize) {
+          p.line(x, 0, x, GAME_HEIGHT);
+        }
+        for (let y = 0; y <= GAME_HEIGHT; y += gridSize) {
+          p.line(0, y, GAME_WIDTH, y);
+        }
+
         // Draw foods
         Object.values(foods).forEach((food) => {
           p.fill(food.color);
