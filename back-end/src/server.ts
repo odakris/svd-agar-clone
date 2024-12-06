@@ -45,28 +45,30 @@ io.on("connection", (socket) => {
       // UPDATE PLAYER POSITION WITHIN GAME BOUNDARIES
       player.x = Math.max(0, Math.min(GAME_WIDTH, data.x));
       player.y = Math.max(0, Math.min(GAME_HEIGHT, data.y));
+    }
+  });
 
-      // CHECK FOR COLLISIONS WITH FOOD
-      Object.keys(foods).forEach((foodId) => {
-        if (handlePlayerToFoodContact(player, foods[foodId])) {
-          delete foods[foodId]; // REMOVE FOOD
-          const x = Math.random() * GAME_WIDTH;
-          const y = Math.random() * GAME_HEIGHT;
-          const newFood = generateFood(x, y); // GENERATE NEW FOOD
-          foods[newFood.id] = newFood; // ADD NEW FOOD TO THE GAME
-        }
-      });
+  // CHECK FOR COLLISIONS WITH FOOD
+  socket.on("player-eat-food", ({ foodId }: { foodId: string }) => {
+    const player = players[socket.id];
 
-      // CHECK FOR COLLISIONS WITH OTHER PLAYERS
-      Object.keys(players).forEach((id) => {
-        if (id !== socket.id) {
-          const otherPlayer = players[id];
-          const eatenPlayerId = handlePlayerToPlayerContact(player, otherPlayer);
-          if (eatenPlayerId) {
-            delete players[eatenPlayerId]; // REMOVE PLAYER
-          }
-        }
-      });
+    if (handlePlayerToFoodContact(player, foods[foodId])) {
+      delete foods[foodId];
+      io.emit("food-eaten", { foodId });
+    }
+  });
+
+  // CHECK FOR COLLISIONS WITH PLAYER
+  socket.on("player-eat-player", ({ otherPlayerId }: { otherPlayerId: string }) => {
+    const player = players[socket.id];
+    const otherPlayer = players[otherPlayerId];
+
+    if (!player || !otherPlayer) return;
+
+    const eatenPlayerId = handlePlayerToPlayerContact(player, otherPlayer);
+    if (eatenPlayerId) {
+      delete players[eatenPlayerId];
+      io.emit("player-eaten", { eatenPlayerId });
     }
   });
 

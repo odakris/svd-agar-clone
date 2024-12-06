@@ -17,6 +17,7 @@ interface Bubble {
 // DEFINE THE GAME BOUNDARIES
 export const GAME_WIDTH = 5000;
 export const GAME_HEIGHT = 5000;
+export const INIT_RADIUS = 20;
 
 const GameCanvas: React.FC = () => {
   // REF FOR THE GAME CONTAINER TO ATTACH THE CANVAS
@@ -98,7 +99,7 @@ const GameCanvas: React.FC = () => {
         p.mouseMoved();
 
         // UPDATE THE PLAYER'S SCORE
-        setPlayerScore(player.r - 10);
+        setPlayerScore(player.r - INIT_RADIUS);
       };
 
       // P5 MOUSE MOVED FUNCTION: HANDLE PLAYER MOVEMENT BASED ON MOUSE POSITION
@@ -121,6 +122,24 @@ const GameCanvas: React.FC = () => {
 
         // EMIT MOVE EVENT TO THE SERVER
         socket.emit("move", { x: player.x + velocity.x, y: player.y + velocity.y });
+
+        // CHECK CONTACT PLAYER TO FOODS
+        Object.keys(foodsRef.current).forEach((foodId) => {
+          const food = foodsRef.current[foodId];
+          if (!food) return;
+          if (p.dist(player.x, player.y, food.x, food.y) < player.r + food.r) {
+            socket.emit("player-eat-food", { foodId });
+          }
+        });
+
+        // CHECK CONCTACT PLAYER TO PLAYER
+        Object.keys(playersRef.current).forEach((otherPlayerId) => {
+          const otherPlayer = playersRef.current[otherPlayerId];
+          if (!otherPlayer) return;
+          if (p.dist(player.x, player.y, otherPlayer.x, otherPlayer.y) < player.r + otherPlayer.r) {
+            socket.emit("player-eat-player", { otherPlayerId });
+          }
+        });
       };
     };
 
@@ -131,6 +150,16 @@ const GameCanvas: React.FC = () => {
     socket.on("update", (data) => {
       playersRef.current = data.players; // UPDATE PLAYERS
       foodsRef.current = data.foods; // UPDATE FOODS
+    });
+
+    // HANDLE FOOD EATEN EVENT
+    socket.on("food-eaten", ({ foodId }) => {
+      delete foodsRef.current[foodId]; // REMOVE EATEN FOOD
+    });
+
+    // HANDLE PLAYER EATEN EVENT
+    socket.on("player-eaten", ({ otherPlayerId }) => {
+      delete playersRef.current[otherPlayerId]; // REMOVE EATEN PLAYER
     });
 
     // CLEAN UP THE P5 INSTANCE ON COMPONENT UNMOUNT

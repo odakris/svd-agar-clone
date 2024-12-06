@@ -12,6 +12,7 @@ export const colorGenerator = () => {
 };
 
 export const isContact = (objA: Bubble, objB: Bubble): boolean => {
+  if (!objA || !objB) return false;
   const dx = objA.x - objB.x;
   const dy = objA.y - objB.y;
   const distance = Math.sqrt(dx * dx + dy * dy);
