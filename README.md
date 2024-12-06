@@ -3,7 +3,7 @@
 Clone the repository from Github and switch to the new directory:
 
 ```
-$ git clone [https://github.com/odakris/cs50w-commerce.git](https://github.com/odakris/svd-agar-clone)
+$ git clone https://github.com/odakris/svd-agar-clone
 $ cd svd-agar-clone
 ```
 
@@ -26,5 +26,5 @@ npm run dev
 You can now play:
 
 ```
-[$ loca](http://localhost:3000/)
+http://localhost:3000/
 ```
