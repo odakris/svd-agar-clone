@@ -2,14 +2,14 @@ import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import { Player } from "./classes/Player";
-import { GAME_WIDTH, GAME_HEIGHT, INIT_RADIUS } from "./constant";
 import { Food } from "./classes/Food";
 import { generateFood, handlePlayerToFoodContact, handlePlayerToPlayerContact } from "./game";
+import { GAME_WIDTH, GAME_HEIGHT, INIT_RADIUS } from "./constant";
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: { origin: "http://localhost:3000", methods: ["GET", "POST"], credentials: true },
 });
 
 let players: { [key: string]: Player } = {};
@@ -27,7 +27,13 @@ io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   // Add new player
-  players[socket.id] = new Player(socket.id, GAME_WIDTH / 2, GAME_HEIGHT / 2, INIT_RADIUS, "red");
+  players[socket.id] = new Player(
+    socket.id,
+    Math.random() * GAME_WIDTH,
+    Math.random() * GAME_HEIGHT,
+    INIT_RADIUS,
+    "red"
+  );
 
   socket.on("move", (data: { x: number; y: number }) => {
     const player = players[socket.id];
@@ -65,6 +71,14 @@ io.on("connection", (socket) => {
   });
 });
 
+setInterval(() => {
+  const x = Math.random() * GAME_WIDTH;
+  const y = Math.random() * GAME_HEIGHT;
+  const newFood = generateFood(x, y);
+  foods[newFood.id] = newFood;
+}, 500);
+
+// Broadcast game state to all clients at 60 FPS
 setInterval(() => {
   io.emit("update", { players, foods });
 }, 1000 / 60);
