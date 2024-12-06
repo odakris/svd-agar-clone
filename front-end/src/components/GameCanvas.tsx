@@ -20,6 +20,7 @@ const GameCanvas: React.FC = () => {
   const playersRef = useRef<{ [key: string]: Bubble }>({});
   const foodsRef = useRef<{ [key: string]: Bubble }>({});
   const [playerScore, setPlayerScore] = useState<number>(0);
+  const [playerPosition, setPlayerPosition] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     const sketch = (p: p5) => {
@@ -38,6 +39,8 @@ const GameCanvas: React.FC = () => {
         const socketId = socket.id as string;
         const player = players[socketId];
         if (!player) return;
+
+        setPlayerPosition({ x: player.x, y: player.y });
 
         // Center the view on the player
         // const scaleFactor = 20 / player.r;
@@ -123,7 +126,15 @@ const GameCanvas: React.FC = () => {
 
       {/* Scoreboard */}
       <div className="absolute top-4 left-4 bg-opacity-50 text-white px-4 py-2 rounded shadow-lg bg-transparent bg-slate-100">
-        <h1 className="text-lg font-bold">Score: {playerScore}</h1>
+        <h1 className="font-bold text-4xl">Score: {playerScore}</h1>
+      </div>
+
+      {/* Position */}
+      <div className="absolute bottom-4 left-4 bg-opacity-50 text-white px-4 py-2 rounded shadow-lg bg-transparent bg-slate-100">
+        <h1 className="font-bold text-4xl">
+          Position: (X : {playerPosition ? Math.round(playerPosition.x) : ""}; Y :{" "}
+          {playerPosition ? Math.round(playerPosition.y) : ""})
+        </h1>
       </div>
     </div>
   );
