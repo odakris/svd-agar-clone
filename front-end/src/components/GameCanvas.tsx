@@ -1,11 +1,23 @@
 import React, { useEffect, useRef } from "react";
 import p5 from "p5";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001");
+
+interface Bubble {
+  id: string;
+  x: number;
+  y: number;
+  r: number;
+  color: string;
+}
 
 export const GAME_WIDTH = 5000;
 export const GAME_HEIGHT = 5000;
 
 const GameCanvas: React.FC = () => {
-  const gameContainerRef = useRef<HTMLDivElement>(null); // Reference to the game container
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+  const playersRef = useRef<{ [key: string]: Bubble }>({});
 
   useEffect(() => {
     const sketch = (p: p5) => {
@@ -17,14 +29,26 @@ const GameCanvas: React.FC = () => {
       };
 
       p.draw = () => {
-        p.background(135, 206, 235); // Light blue background
+        p.background(135, 206, 235);
+
+        const players = playersRef.current;
+
+        // Draw players
+        Object.values(players).forEach((player) => {
+          p.fill(player.color);
+          p.ellipse(player.x, player.y, player.r * 2);
+        });
       };
     };
 
-    const p5Instance = new p5(sketch); // Initialize p5.js sketch
+    const p5Instance = new p5(sketch);
+
+    socket.on("update", (data) => {
+      playersRef.current = data.players;
+    });
 
     return () => {
-      p5Instance.remove(); // Clean up p5 instance on component unmount
+      p5Instance.remove();
     };
   }, []);
 
