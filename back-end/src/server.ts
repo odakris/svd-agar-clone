@@ -4,7 +4,7 @@ import { Server } from "socket.io";
 import { Player } from "./classes/Player";
 import { GAME_WIDTH, GAME_HEIGHT, INIT_RADIUS } from "./constant";
 import { Food } from "./classes/Food";
-import { generateFood } from "./game";
+import { generateFood, handlePlayerToFoodContact, handlePlayerToPlayerContact } from "./game";
 
 const app = express();
 const server = http.createServer(app);
@@ -34,6 +34,28 @@ io.on("connection", (socket) => {
     if (player) {
       player.x = Math.max(0, Math.min(GAME_WIDTH, data.x));
       player.y = Math.max(0, Math.min(GAME_HEIGHT, data.y));
+
+      // Check collisions with food
+      Object.keys(foods).forEach((foodId) => {
+        if (handlePlayerToFoodContact(player, foods[foodId])) {
+          delete foods[foodId]; // Remove consumed food
+          const x = Math.random() * GAME_WIDTH;
+          const y = Math.random() * GAME_HEIGHT;
+          const newFood = generateFood(x, y);
+          foods[newFood.id] = newFood; // Generate a new food item
+        }
+      });
+
+      // Check collisions with other players
+      Object.keys(players).forEach((id) => {
+        if (id !== socket.id) {
+          const otherPlayer = players[id];
+          const eatenPlayerId = handlePlayerToPlayerContact(player, otherPlayer);
+          if (eatenPlayerId) {
+            delete players[eatenPlayerId]; // Remove the "eaten" player
+          }
+        }
+      });
     }
   });
 
