@@ -165,6 +165,9 @@ const GameCanvas: React.FC = () => {
     // CLEAN UP THE P5 INSTANCE ON COMPONENT UNMOUNT
     return () => {
       p5Instance.remove();
+      socket.off("update");
+      socket.off("food-eaten");
+      socket.off("player-eaten");
     };
   }, []);
 
