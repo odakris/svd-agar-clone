@@ -179,7 +179,7 @@ const GameCanvas: React.FC = () => {
 
       {/* SCOREBOARD */}
       <div className="absolute top-4 left-4 bg-opacity-50 text-white px-4 py-2 rounded shadow-lg bg-transparent bg-slate-100">
-        <h1 className="font-bold text-4xl">Score: {playerScore}</h1>
+        <h1 className="font-bold text-4xl">Score: {playerScore.toFixed(2)}</h1>
       </div>
 
       {/* PLAYER POSITION DISPLAY */}

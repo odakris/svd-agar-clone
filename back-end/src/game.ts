@@ -28,6 +28,7 @@ export const generateFood = (x: number, y: number): Food => {
 
 export const handlePlayerToFoodContact = (player: Player, food: Food): boolean => {
   if (isContact(player, food)) {
+    console.log(`Player ${player.id} : "SLURP"`);
     player.r += 1;
     return true;
   }
@@ -38,9 +39,13 @@ export const handlePlayerToPlayerContact = (player1: Player, player2: Player): s
   if (isContact(player1, player2)) {
     if (player1.r > player2.r) {
       player1.r += player2.r / 4;
+      console.log(`Player ${player1.id} has eaten Player ${player2.id}`);
+      console.log(`Player ${player2.id} is dead!`);
       return player2.id;
     } else if (player1.r < player2.r) {
       player2.r += player1.r / 4;
+      console.log(`Player ${player2.id} has eaten Player ${player1.id}`);
+      console.log(`Player ${player1.id} is dead!`);
       return player1.id;
     }
   }

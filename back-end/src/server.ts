@@ -54,6 +54,10 @@ io.on("connection", (socket) => {
 
     if (handlePlayerToFoodContact(player, foods[foodId])) {
       delete foods[foodId];
+      const x = Math.random() * GAME_WIDTH;
+      const y = Math.random() * GAME_HEIGHT;
+      const food = generateFood(x, y);
+      foods[food.id] = food;
       io.emit("food-eaten", { foodId });
     }
   });
