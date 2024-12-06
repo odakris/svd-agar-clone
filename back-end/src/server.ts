@@ -29,6 +29,14 @@ io.on("connection", (socket) => {
   // Add new player
   players[socket.id] = new Player(socket.id, GAME_WIDTH / 2, GAME_HEIGHT / 2, INIT_RADIUS, "red");
 
+  socket.on("move", (data: { x: number; y: number }) => {
+    const player = players[socket.id];
+    if (player) {
+      player.x = Math.max(0, Math.min(GAME_WIDTH, data.x));
+      player.y = Math.max(0, Math.min(GAME_HEIGHT, data.y));
+    }
+  });
+
   socket.on("disconnect", () => {
     console.log(`User disconnected: ${socket.id}`);
     delete players[socket.id];

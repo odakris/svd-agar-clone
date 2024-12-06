@@ -39,7 +39,16 @@ const GameCanvas: React.FC = () => {
         const player = players[socketId];
         if (!player) return;
 
+        // Center the view on the player
+        // const scaleFactor = 20 / player.r;
+        // const translateX = p.width / 2 - player.x * scaleFactor;
+        // const translateY = p.height / 2 - player.y * scaleFactor;
+        const translateX = p.width / 2 - player.x;
+        const translateY = p.height / 2 - player.y;
+
         p.push();
+        p.translate(translateX, translateY);
+        // p.scale(scaleFactor);
 
         // Draw foods
         Object.values(foods).forEach((food) => {
@@ -54,6 +63,27 @@ const GameCanvas: React.FC = () => {
         });
 
         p.pop();
+
+        p.mouseMoved();
+      };
+
+      p.mouseMoved = () => {
+        const socketId = socket.id as string;
+        const player = playersRef.current[socketId];
+        if (!player) return;
+
+        const dx = p.mouseX - p.width / 2;
+        const dy = p.mouseY - p.height / 2;
+        const mag = Math.sqrt(dx * dx + dy * dy);
+
+        if (mag < 10) return;
+
+        const velocity = {
+          x: (dx / mag) * 4,
+          y: (dy / mag) * 4,
+        };
+
+        socket.emit("move", { x: player.x + velocity.x, y: player.y + velocity.y });
       };
     };
 
