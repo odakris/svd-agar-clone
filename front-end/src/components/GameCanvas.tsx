@@ -30,7 +30,7 @@ const GameCanvas: React.FC = () => {
       };
 
       p.draw = () => {
-        p.background(135, 206, 235);
+        p.background(0, 0, 0);
 
         const players = playersRef.current;
         const foods = foodsRef.current;
@@ -122,7 +122,7 @@ const GameCanvas: React.FC = () => {
       ></div>
 
       {/* Scoreboard */}
-      <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded shadow-lg">
+      <div className="absolute top-4 left-4 bg-opacity-50 text-white px-4 py-2 rounded shadow-lg bg-transparent bg-slate-100">
         <h1 className="text-lg font-bold">Score: {playerScore}</h1>
       </div>
     </div>

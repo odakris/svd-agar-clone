@@ -3,7 +3,7 @@ import http from "http";
 import { Server } from "socket.io";
 import { Player } from "./classes/Player";
 import { Food } from "./classes/Food";
-import { generateFood, handlePlayerToFoodContact, handlePlayerToPlayerContact } from "./game";
+import { colorGenerator, generateFood, handlePlayerToFoodContact, handlePlayerToPlayerContact } from "./game";
 import { GAME_WIDTH, GAME_HEIGHT, INIT_RADIUS } from "./constant";
 
 const app = express();
@@ -32,7 +32,7 @@ io.on("connection", (socket) => {
     Math.random() * GAME_WIDTH,
     Math.random() * GAME_HEIGHT,
     INIT_RADIUS,
-    "red"
+    colorGenerator()
   );
 
   socket.on("move", (data: { x: number; y: number }) => {

@@ -4,6 +4,13 @@ import { Player } from "./classes/Player";
 import { FOOD_RADIUS } from "./constant";
 import { v4 as uuidv4 } from "uuid";
 
+export const colorGenerator = () => {
+  const r = Math.floor(Math.random() * 256);
+  const g = Math.floor(Math.random() * 256);
+  const b = Math.floor(Math.random() * 256);
+  return `rgb(${r}, ${g}, ${b})`;
+};
+
 export const isContact = (objA: Bubble, objB: Bubble): boolean => {
   const dx = objA.x - objB.x;
   const dy = objA.y - objB.y;
@@ -14,7 +21,7 @@ export const isContact = (objA: Bubble, objB: Bubble): boolean => {
 export const generateFood = (x: number, y: number): Food => {
   const id = uuidv4();
   const radius = FOOD_RADIUS;
-  const color = "blue";
+  const color = colorGenerator();
   return new Food(id, x, y, radius, color);
 };
 
