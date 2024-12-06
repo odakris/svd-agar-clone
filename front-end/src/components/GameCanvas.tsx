@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import p5 from "p5";
 import { io } from "socket.io-client";
 
@@ -19,6 +19,7 @@ const GameCanvas: React.FC = () => {
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const playersRef = useRef<{ [key: string]: Bubble }>({});
   const foodsRef = useRef<{ [key: string]: Bubble }>({});
+  const [playerScore, setPlayerScore] = useState<number>(0);
 
   useEffect(() => {
     const sketch = (p: p5) => {
@@ -34,7 +35,6 @@ const GameCanvas: React.FC = () => {
         const players = playersRef.current;
         const foods = foodsRef.current;
 
-        // Get the current player
         const socketId = socket.id as string;
         const player = players[socketId];
         if (!player) return;
@@ -55,7 +55,7 @@ const GameCanvas: React.FC = () => {
         p.rect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
         const gridSize = 100;
-        p.stroke(200); // Light gray for grid lines
+        p.stroke(200);
         for (let x = 0; x <= GAME_WIDTH; x += gridSize) {
           p.line(x, 0, x, GAME_HEIGHT);
         }
@@ -63,13 +63,11 @@ const GameCanvas: React.FC = () => {
           p.line(0, y, GAME_WIDTH, y);
         }
 
-        // Draw foods
         Object.values(foods).forEach((food) => {
           p.fill(food.color);
           p.ellipse(food.x, food.y, food.r * 2);
         });
 
-        // Draw players
         Object.values(players).forEach((player) => {
           p.fill(player.color);
           p.ellipse(player.x, player.y, player.r * 2);
@@ -78,6 +76,8 @@ const GameCanvas: React.FC = () => {
         p.pop();
 
         p.mouseMoved();
+
+        setPlayerScore(player.r - 10);
       };
 
       p.mouseMoved = () => {
@@ -108,16 +108,24 @@ const GameCanvas: React.FC = () => {
     });
 
     return () => {
-      p5Instance.remove();
+      p5Instance.remove(); // Clean up the p5 instance
     };
   }, []);
 
   return (
-    <div
-      id="game-container"
-      ref={gameContainerRef}
-      className="relative h-screen w-screen bg-gray-100 flex items-center justify-center"
-    ></div>
+    <div className="relative h-screen w-screen bg-gray-100 flex items-center justify-center">
+      {/* Game Container */}
+      <div
+        id="game-container"
+        ref={gameContainerRef}
+        className="absolute inset-0 flex justify-center items-center"
+      ></div>
+
+      {/* Scoreboard */}
+      <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white px-4 py-2 rounded shadow-lg">
+        <h1 className="text-lg font-bold">Score: {playerScore}</h1>
+      </div>
+    </div>
   );
 };
 
